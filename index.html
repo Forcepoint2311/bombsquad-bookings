@@ -44,6 +44,7 @@ h3{margin:0;font-family:var(--display);font-weight:600;font-size:18px;letter-spa
   display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:6px;text-align:left;font:600 15px/1.2 var(--body);cursor:pointer}
 .svc svg{width:26px;height:26px;stroke:var(--red-hi)}
 .svc .pr{font-weight:500;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.svc:last-child:nth-child(odd){grid-column:1/-1;min-height:72px}
 .svc[aria-pressed="true"]{border-color:var(--red);background:#2A1213}
 .svc[aria-pressed="true"] svg{stroke:#fff}
 .svc[aria-pressed="true"] .pr{color:#FFD0D1}
@@ -110,6 +111,34 @@ textarea{min-height:84px;resize:vertical}
 .linkish{appearance:none;background:none;border:0;color:var(--red-hi);font:600 15px var(--body);text-decoration:underline;cursor:pointer;padding:6px 0;min-height:32px}
 .maplink{color:var(--ok);font-weight:600;font-size:15px}
 .ok-tag{color:var(--ok)}
+.prompt{border:2px dashed var(--red);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.prompt b{font-size:17px}
+.prompt span{color:var(--muted);font-size:15px}
+.prompt .mini{margin-top:6px}
+select.needs{border-color:var(--red);box-shadow:0 0 0 2px rgba(227,20,27,.35)}
+#sheet{display:none}
+@media print{
+  @page{size:A4;margin:16mm}
+  html,body{background:#fff!important;color:#111!important;padding:0!important}
+  :root{padding:0!important;color-scheme:light!important;background:#fff!important}
+  body > *:not(#sheet){display:none!important}
+  #sheet{display:block!important;font-family:var(--body);color:#111;font-size:12pt;line-height:1.4}
+  #sheet .sh-top{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:3px solid #E3141B;padding-bottom:10px}
+  #sheet .sh-top img{width:70px;height:70px}
+  #sheet .co{font-family:var(--display);font-weight:700;font-size:15pt;text-transform:uppercase;letter-spacing:.5px}
+  #sheet .co small{display:block;font-family:var(--body);font-size:9.5pt;color:#E3141B;text-transform:none;letter-spacing:0;font-weight:700}
+  #sheet h1{font-size:24pt;margin:0;text-align:right;color:#111}
+  #sheet .meta{text-align:right;font-size:10pt;color:#444}
+  #sheet h2{font-family:var(--display);font-size:11pt;letter-spacing:1.5px;text-transform:uppercase;color:#E3141B;margin:18px 0 6px}
+  #sheet table{width:100%;border-collapse:collapse;font-size:11pt}
+  #sheet td{padding:5px 0;vertical-align:top;border-bottom:1px solid #e3e3e3}
+  #sheet td.k{color:#555;width:34%}
+  #sheet td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #sheet tr.tot td{font-weight:700;font-size:13pt;border-top:2px solid #111;border-bottom:0}
+  #sheet tr.depr td{font-weight:700;color:#E3141B}
+  #sheet .test{border:2px solid #F5B700;background:#FFF6CC;padding:6px 10px;font-weight:700;margin-top:12px;font-size:10pt}
+  #sheet .foot{margin-top:22px;padding-top:8px;border-top:1px solid #ccc;font-size:9.5pt;color:#555;text-align:center}
+}
 @media (max-width:380px){.row{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -167,11 +196,16 @@ textarea{min-height:84px;resize:vertical}
 <div class="sh"><span class="num" aria-hidden="true">3</span><h2 id="h-3">Your details</h2></div>
 <div class="field"><label for="name">Full name <span class="req">*</span></label><input id="name" type="text" autocomplete="name" placeholder="Full name"></div>
 <div class="field"><label for="phone">Phone / WhatsApp <span class="req">*</span></label><input id="phone" type="tel" autocomplete="tel" placeholder="Include country code, e.g. +44 7700 900123"></div>
-<div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="For your quote and confirmation"></div>
+<div class="field"><label for="email">Email (optional)</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com"></div>
 </section>
 
 <section aria-labelledby="h-4">
 <div class="sh"><span class="num" aria-hidden="true">4</span><h2 id="h-4">Your quote</h2></div>
+<div class="prompt" id="quotePrompt" hidden>
+<b>Choose your airport route to see your price</b>
+<span>Go back to step 1 and pick your route from the list.</span>
+<button type="button" class="mini" id="goRoute">Choose route</button>
+</div>
 <div class="quote" id="quoteLines"></div>
 <div class="dep" id="depBox" aria-live="polite">
 <span class="k" id="depLabel">Deposit to confirm (20%)</span>
@@ -179,6 +213,7 @@ textarea{min-height:84px;resize:vertical}
 <span class="s" id="depBal"></span>
 </div>
 <p class="note" id="quoteNote"></p>
+<button type="button" class="btn copy" id="printQuote">Save or print quote (PDF)</button>
 </section>
 
 <section aria-labelledby="h-5" id="paySection">
@@ -219,6 +254,8 @@ Send booking on WhatsApp</a>
 </div>
 </div>
 
+<div id="sheet" aria-hidden="true"></div>
+
 <script>
 (function(){
   // ================= SETTINGS: change these to the real values =================
@@ -242,7 +279,8 @@ Send booking on WhatsApp</a>
     { id:'shop',     name:'Shopping trip',             price:900,  icon:'bag' },
     { id:'dine',     name:'Restaurant & dining',       price:800,  icon:'fork' },
     { id:'night',    name:'Entertainment & nightlife', price:1000, icon:'ticket' },
-    { id:'business', name:'Business travel',           price:1100, icon:'case' }
+    { id:'business', name:'Business travel',           price:1100, icon:'case' },
+    { id:'ride',     name:'Private ride (A to B)',     price:500,  icon:'car' }
   ];
   const BANK = {                       // FICTITIOUS TEST DETAILS – replace before going live
     'Bank': 'Test Bank',
@@ -260,7 +298,8 @@ Send booking on WhatsApp</a>
     bag:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
     fork:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
     ticket:'<path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/><path d="M13 5v2M13 17v2M13 11v2"/>',
-    case:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>'
+    case:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-2.7-3.6A2 2 0 0 0 13.7 6H8.3a2 2 0 0 0-1.6.8L4 10.5 2.6 11A1.6 1.6 0 0 0 2 12.3V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/>'
   };
   const $ = (id) => document.getElementById(id);
   const R = (n) => 'R ' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -436,6 +475,31 @@ Send booking on WhatsApp</a>
     return L.join('\n');
   }
 
+  $('goRoute').addEventListener('click', () => { $('route').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => $('route').focus(), 300); });
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  $('printQuote').addEventListener('click', () => {
+    const q = calc(); if (q.tbc) return;
+    const s = svc(), ref = makeRef(v('name'));
+    const route = s.id === 'airport' && v('route') !== '' ? AIRPORT_ROUTES[+v('route')][0] : '';
+    const today = new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+    const row = (k, val, cls) => '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="k">' + esc(k) + '</td><td' + (cls ? ' class="n"' : '') + '>' + esc(val) + '</td></tr>';
+    const money = (k, val, cls) => '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + esc(k) + '</td><td class="n">' + esc(val) + '</td></tr>';
+    let h = '<div class="sh-top"><div style="display:flex;align-items:center;gap:12px"><img src="' + document.querySelector('header img').src + '" alt=""><div class="co">Bombsquad Security &amp; Escort Services<small>Your Safety. Our Priority.</small></div></div>'
+      + '<div><h1>QUOTATION</h1><div class="meta">Date: ' + esc(today) + '<br>Reference: <b>' + esc(ref) + '</b></div></div></div>';
+    if (TEST_MODE) h += '<div class="test">TEST VERSION – example prices and banking details only. Not a valid quotation.</div>';
+    h += '<h2>Prepared for</h2><table>' + row('Name', v('name') || '—') + row('Phone', v('phone') || '—') + (v('email') ? row('Email', v('email')) : '') + '</table>';
+    h += '<h2>Trip details</h2><table>' + row('Service', s.name + (route ? ' (' + route + ')' : '') + (state.escort ? ' + security escort' : ''))
+      + row('Date', niceDate(v('date')) || '—') + row('Pick-up time', v('time') || '—') + row('Pick-up', v('from') || '—')
+      + (v('to') ? row('Drop-off', v('to')) : '') + (s.id === 'airport' && v('flight') ? row('Flight', v('flight')) : '') + row('Passengers', state.pax) + (v('notes') ? row('Notes', v('notes')) : '') + '</table>';
+    h += '<h2>Quote</h2><table>' + q.lines.map(([k, val]) => money(k, val)).join('')
+      + money('Total', R(q.total), 'tot') + money('Deposit to confirm (' + Math.round(DEPOSIT_RATE * 100) + '%)', R(q.dep), 'depr') + money('Balance', R(q.bal)) + '</table>';
+    h += '<h2>Payment</h2><table>' + Object.entries(BANK).map(([k, val]) => row(k, val)).join('') + row('Reference', ref) + '</table>';
+    h += '<div class="foot">Bookings &amp; enquiries: 079 470 1107 · Your booking is confirmed once your deposit is received.</div>';
+    $('sheet').innerHTML = h;
+    try { window.print(); } catch (e) {}
+  });
+
   function update(){
     const s = svc(), air = s.id === 'airport';
     $('routeWrap').hidden = !air; $('flightWrap').hidden = !air;
@@ -450,9 +514,13 @@ Send booking on WhatsApp</a>
     q.lines.forEach(([k, val]) => { const d = document.createElement('div'); d.className = 'ql'; d.innerHTML = '<span></span><b></b>'; d.children[0].textContent = k; d.children[1].textContent = val; ql.appendChild(d); });
     const t = document.createElement('div'); t.className = 'ql total'; t.innerHTML = '<span>Total</span><b></b>'; t.children[1].textContent = q.tbc ? 'To be quoted' : R(q.total); ql.appendChild(t);
     $('depBox').hidden = q.tbc; $('paySection').hidden = q.tbc;
+    const noRoute = air && v('route') === '';
+    $('quotePrompt').hidden = !noRoute; ql.hidden = noRoute;
+    $('route').classList.toggle('needs', noRoute);
+    $('printQuote').hidden = q.tbc;
     $('depAmt').textContent = R(q.dep);
     $('depBal').textContent = 'Balance of ' + R(q.bal) + ' payable on the day';
-    $('quoteNote').textContent = q.tbc ? 'We will send your quote and deposit amount on WhatsApp. You can still send your booking now.' : (state.pax > MAX_PAX ? 'Price shown is for up to ' + MAX_PAX + ' passengers.' : (TEST_MODE ? 'Example prices for testing only.' : ''));
+    $('quoteNote').textContent = noRoute ? '' : q.tbc ? 'We will send your quote and deposit amount on WhatsApp. You can still send your booking now.' : (state.pax > MAX_PAX ? 'Price shown is for up to ' + MAX_PAX + ' passengers.' : (TEST_MODE ? 'Example prices for testing only.' : ''));
 
     const need = [];
     if (air && v('route') === '') need.push('airport route');
