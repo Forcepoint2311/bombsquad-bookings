@@ -99,6 +99,9 @@ textarea{min-height:84px;resize:vertical}
 .call .lb{font-size:13px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
 .call .ph{font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:1px;user-select:all}
 .toast{min-height:1.4em;text-align:center;color:var(--ok);font-weight:600;font-size:15px;margin:0}
+fieldset.addr{border:1px solid var(--line);border-radius:12px;padding:14px 12px;margin:0;display:flex;flex-direction:column;gap:12px;min-width:0}
+fieldset.addr legend{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.5px;text-transform:uppercase;padding:0 6px}
+.maplink-wrap{justify-content:flex-end;padding-bottom:12px}
 .ac{position:relative}
 .ac-list{list-style:none;margin:6px 0 0;padding:6px;background:var(--panel-2);border:1px solid var(--red);border-radius:10px;max-height:320px;overflow-y:auto;position:relative;z-index:5}
 .ac-list li{padding:11px 10px;border-radius:8px;cursor:pointer;line-height:1.3}
@@ -175,12 +178,44 @@ select.needs{border-color:var(--red);box-shadow:0 0 0 2px rgba(227,20,27,.35)}
 <div class="field"><label for="date">Date <span class="req">*</span></label><input id="date" type="date"></div>
 <div class="field"><label for="time">Pick-up time <span class="req">*</span></label><input id="time" type="time"></div>
 </div>
-<div class="field"><label for="from" id="fromLbl">Pick-up address <span class="req">*</span></label>
-<div class="ac"><input id="from" type="text" placeholder="Start typing a hotel, address or venue" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="from-list"><ul class="ac-list" id="from-list" role="listbox" hidden></ul></div>
-<div class="ac-meta"><button type="button" class="linkish" id="locBtn">Use my current location</button><a class="maplink" id="from-map" href="#" target="_blank" rel="noopener" hidden>View on map</a></div></div>
-<div class="field"><label for="to" id="toLbl">Drop-off address</label>
-<div class="ac"><input id="to" type="text" placeholder="Start typing a hotel, address or venue" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="to-list"><ul class="ac-list" id="to-list" role="listbox" hidden></ul></div>
-<div class="ac-meta"><a class="maplink" id="to-map" href="#" target="_blank" rel="noopener" hidden>View on map</a></div></div>
+<fieldset class="addr">
+<legend>Pick-up address <span class="req">*</span></legend>
+<div class="field"><label for="from">Search (optional)</label>
+<div class="ac"><input id="from" type="text" placeholder="Type a hotel, venue or street to auto-fill" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="from-list"><ul class="ac-list" id="from-list" role="listbox" hidden></ul></div>
+<div class="ac-meta"><button type="button" class="linkish" id="locBtn">Use my current location</button></div></div>
+<div class="row">
+<div class="field"><label for="from-unit">Unit / flat no.</label><input id="from-unit" type="text" placeholder="e.g. Unit 12"></div>
+<div class="field"><label for="from-complex">Complex / building</label><input id="from-complex" type="text" placeholder="e.g. Sunset Villas"></div>
+</div>
+<div class="field"><label for="from-street">Street address <span class="req">*</span></label><input id="from-street" type="text" autocomplete="address-line1" placeholder="e.g. 29 Bird Street"></div>
+<div class="row">
+<div class="field"><label for="from-suburb">Suburb</label><input id="from-suburb" type="text" placeholder="e.g. Mayfair"></div>
+<div class="field"><label for="from-city">City</label><input id="from-city" type="text" placeholder="e.g. Johannesburg"></div>
+</div>
+<div class="row">
+<div class="field"><label for="from-code">Postal code</label><input id="from-code" type="text" inputmode="numeric" maxlength="4" placeholder="e.g. 2092"></div>
+<div class="field maplink-wrap"><a class="maplink" id="from-map" href="#" target="_blank" rel="noopener" hidden>Check on map</a></div>
+</div>
+</fieldset>
+
+<fieldset class="addr">
+<legend>Drop-off address</legend>
+<div class="field"><label for="to">Search (optional)</label>
+<div class="ac"><input id="to" type="text" placeholder="Type a hotel, venue or street to auto-fill" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="to-list"><ul class="ac-list" id="to-list" role="listbox" hidden></ul></div></div>
+<div class="row">
+<div class="field"><label for="to-unit">Unit / flat no.</label><input id="to-unit" type="text" placeholder="e.g. Unit 12"></div>
+<div class="field"><label for="to-complex">Complex / building</label><input id="to-complex" type="text" placeholder="e.g. Michelangelo Hotel"></div>
+</div>
+<div class="field"><label for="to-street">Street address</label><input id="to-street" type="text" placeholder="e.g. 135 West Street"></div>
+<div class="row">
+<div class="field"><label for="to-suburb">Suburb</label><input id="to-suburb" type="text" placeholder="e.g. Sandown"></div>
+<div class="field"><label for="to-city">City</label><input id="to-city" type="text" placeholder="e.g. Sandton"></div>
+</div>
+<div class="row">
+<div class="field"><label for="to-code">Postal code</label><input id="to-code" type="text" inputmode="numeric" maxlength="4" placeholder="e.g. 2196"></div>
+<div class="field maplink-wrap"><a class="maplink" id="to-map" href="#" target="_blank" rel="noopener" hidden>Check on map</a></div>
+</div>
+</fieldset>
 <div class="field" id="flightWrap"><label for="flight">Flight number</label><input id="flight" type="text" placeholder="e.g. SA 235"></div>
 <div class="field"><span class="lbl" id="pax-l">Passengers</span>
 <div class="stepper" role="group" aria-labelledby="pax-l">
@@ -325,18 +360,37 @@ Send booking on WhatsApp</a>
       const url = 'https://api.geoapify.com/v1/geocode/autocomplete?text=' + encodeURIComponent(q) + '&filter=countrycode:za&bias=proximity:' + BIAS.lon + ',' + BIAS.lat + '&limit=6&lang=en&format=json&apiKey=' + GEOAPIFY_KEY;
       const res = await fetch(url, { signal }); if (!res.ok) throw new Error(res.status);
       const data = await res.json();
-      return (data.results || []).map(r => ({ title: r.name || r.address_line1 || r.formatted, sub: r.name ? (r.address_line2 || '') : (r.address_line2 || ''), lat: r.lat, lon: r.lon }));
+      return (data.results || []).map(r => ({ title: r.name || r.address_line1 || r.formatted, sub: r.address_line2 || '', lat: r.lat, lon: r.lon,
+        parts: { complex: r.name && r.name !== r.street ? r.name : '', street: [r.housenumber, r.street].filter(Boolean).join(' '), suburb: r.suburb || r.district || '', city: r.city || '', code: r.postcode || '' } }));
     }
     const url = GEO_API + '/api/?q=' + encodeURIComponent(q) + '&lat=' + BIAS.lat + '&lon=' + BIAS.lon + '&bbox=' + SA_BBOX + '&limit=6&lang=en';
     const res = await fetch(url, { signal }); if (!res.ok) throw new Error(res.status);
     const data = await res.json();
-    return (data.features || []).map(f => Object.assign(label(f.properties || {}), { lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1] }));
+    return (data.features || []).map(f => Object.assign(label(f.properties || {}), { lon: f.geometry.coordinates[0], lat: f.geometry.coordinates[1], parts: photonParts(f.properties || {}) }));
   }
-  function setGeo(key, g){
-    state.geo[key] = g;
-    const a = $(key + '-map');
-    if (g) { a.href = mapUrl(g); a.hidden = false; } else { a.hidden = true; }
+  function photonParts(p){
+    const street = [p.housenumber, p.street].filter(Boolean).join(' ');
+    const isPlace = p.name && p.name !== street && p.name !== p.street;
+    return { complex: isPlace ? p.name : '', street: street || (isPlace ? '' : (p.name || '')), suburb: noWard(p.locality) || noWard(p.district) || '', city: p.city || noWard(p.county) || '', code: p.postcode || '' };
   }
+  const PARTS = ['unit', 'complex', 'street', 'suburb', 'city', 'code'];
+  function fillParts(key, parts){
+    ['complex', 'street', 'suburb', 'city', 'code'].forEach(k => { $(key + '-' + k).value = parts[k] || ''; });
+  }
+  function addr(key){ return PARTS.map(k => $(key + '-' + k).value.trim()).filter(Boolean).join(', '); }
+  function mapText(key){ return ['street', 'suburb', 'city', 'code'].map(k => $(key + '-' + k).value.trim()).filter(Boolean).join(', ') + ', South Africa'; }
+  function updateMap(key){
+    const a = $(key + '-map'), text = addr(key), g = state.geo[key];
+    if (g) { a.href = mapUrl(g); a.hidden = false; }
+    else if ($(key + '-street').value.trim()) { a.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapText(key)); a.hidden = false; }
+    else { a.hidden = true; }
+  }
+  function mapFor(key){
+    const g = state.geo[key];
+    if (g) return mapUrl(g);
+    return $(key + '-street').value.trim() ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(mapText(key)) : '';
+  }
+  function setGeo(key, g){ state.geo[key] = g; updateMap(key); }
   function autocomplete(key){
     const input = $(key), list = $(key + '-list');
     let timer = null, items = [], active = -1, seq = 0;
@@ -345,8 +399,10 @@ Send booking on WhatsApp</a>
     function choose(i){
       const it = items[i]; if (!it) return;
       input.value = it.title + (it.sub ? ', ' + it.sub : '');
+      if (it.parts) fillParts(key, it.parts);
       setGeo(key, { lat: it.lat, lon: it.lon });
       close(); update();
+      if (!$(key + '-street').value) $(key + '-street').focus();
     }
     function render(){
       list.textContent = '';
@@ -379,7 +435,6 @@ Send booking on WhatsApp</a>
       } finally { clearTimeout(to); }
     }
     input.addEventListener('input', () => {
-      setGeo(key, null);
       clearTimeout(timer);
       const q = input.value.trim();
       if (q.length < 3) { seq++; if (ctl) ctl.abort(); close(); return; }
@@ -406,8 +461,9 @@ Send booking on WhatsApp</a>
       try {
         const res = await fetch(GEO_API + '/reverse?lat=' + g.lat + '&lon=' + g.lon + '&lang=en');
         const f = ((await res.json()).features || [])[0];
-        if (f) { const l = label(f.properties || {}); text = l.title + (l.sub ? ', ' + l.sub : ''); }
+        if (f) { const l = label(f.properties || {}); text = l.title + (l.sub ? ', ' + l.sub : ''); fillParts('from', photonParts(f.properties || {})); }
       } catch (e) {}
+      if (!$('from-street').value) $('from-street').value = 'My current location (see map link)';
       $('from').value = text; setGeo('from', g); btn.textContent = 'Use my current location'; update();
     }, () => { btn.textContent = 'Could not get your location. Please type the address.'; }, { enableHighAccuracy: true, timeout: 12000 });
   });
@@ -441,7 +497,8 @@ Send booking on WhatsApp</a>
   $('plus').addEventListener('click', () => { state.pax = Math.min(30, state.pax + 1); update(); });
   $('pm-eft').addEventListener('click', () => { state.pm = 'eft'; update(); });
   $('pm-card').addEventListener('click', () => { state.pm = 'card'; update(); });
-  ['route','date','time','from','to','flight','notes','name','phone','email'].forEach(id => { $(id).addEventListener('input', update); $(id).addEventListener('change', update); });
+  ['route','date','time','flight','notes','name','phone','email'].concat(['from','to'].flatMap(k => PARTS.map(f => k + '-' + f))).forEach(id => { $(id).addEventListener('input', update); $(id).addEventListener('change', update); });
+  ['from','to'].forEach(k => ['street','suburb','city','code'].forEach(f => $(k + '-' + f).addEventListener('input', () => { state.geo[k] = null; })));
   $('f').addEventListener('submit', e => e.preventDefault());
 
   const v = (id) => $(id).value.trim();
@@ -475,10 +532,10 @@ Send booking on WhatsApp</a>
     L.push('Reference: ' + r, '');
     L.push('*Service:* ' + s.name + (route ? ' (' + route + ')' : '') + (state.escort ? ' + security escort' : ''));
     L.push('*Date:* ' + niceDate(v('date')), '*Pick-up time:* ' + v('time'));
-    L.push('*Pick-up:* ' + v('from'));
-    if (state.geo.from) L.push('Map: ' + mapUrl(state.geo.from));
-    if (v('to')) L.push('*Drop-off:* ' + v('to'));
-    if (v('to') && state.geo.to) L.push('Map: ' + mapUrl(state.geo.to));
+    L.push('*Pick-up:* ' + addr('from'));
+    if (mapFor('from')) L.push('Map: ' + mapFor('from'));
+    if (addr('to')) L.push('*Drop-off:* ' + addr('to'));
+    if (mapFor('to')) L.push('Map: ' + mapFor('to'));
     if (s.id === 'airport' && v('flight')) L.push('*Flight:* ' + v('flight'));
     L.push('*Passengers:* ' + state.pax);
     if (v('notes')) L.push('*Notes:* ' + v('notes'));
@@ -513,8 +570,8 @@ Send booking on WhatsApp</a>
     if (TEST_MODE) h += '<div class="test">TEST VERSION – example prices and banking details only. Not a valid quotation.</div>';
     h += '<h2>Prepared for</h2><table>' + row('Name', v('name') || '—') + row('Phone', v('phone') || '—') + (v('email') ? row('Email', v('email')) : '') + '</table>';
     h += '<h2>Trip details</h2><table>' + row('Service', s.name + (route ? ' (' + route + ')' : '') + (state.escort ? ' + security escort' : ''))
-      + row('Date', niceDate(v('date')) || '—') + row('Pick-up time', v('time') || '—') + row('Pick-up', v('from') || '—')
-      + (v('to') ? row('Drop-off', v('to')) : '') + (s.id === 'airport' && v('flight') ? row('Flight', v('flight')) : '') + row('Passengers', state.pax) + (v('notes') ? row('Notes', v('notes')) : '') + '</table>';
+      + row('Date', niceDate(v('date')) || '—') + row('Pick-up time', v('time') || '—') + row('Pick-up', addr('from') || '—')
+      + (addr('to') ? row('Drop-off', addr('to')) : '') + (s.id === 'airport' && v('flight') ? row('Flight', v('flight')) : '') + row('Passengers', state.pax) + (v('notes') ? row('Notes', v('notes')) : '') + '</table>';
     h += '<h2>Quote</h2><table>' + q.lines.map(([k, val]) => money(k, val)).join('')
       + money('Total', R(q.total), 'tot') + money('Deposit to confirm (' + Math.round(DEPOSIT_RATE * 100) + '%)', R(q.dep), 'depr') + money('Balance', R(q.bal)) + '</table>';
     h += '<h2>Payment</h2><table>' + Object.entries(BANK).map(([k, val]) => row(k, val)).join('') + row('Reference', ref) + '</table>';
@@ -525,6 +582,7 @@ Send booking on WhatsApp</a>
 
   function update(){
     const s = svc(), air = s.id === 'airport';
+    updateMap('from'); updateMap('to');
     $('routeWrap').hidden = !air; $('flightWrap').hidden = !air;
     $('pax').textContent = state.pax;
     $('paxNote').textContent = state.pax > MAX_PAX ? 'More than ' + MAX_PAX + ' passengers may need a larger vehicle. We will confirm the price with you.' : '';
@@ -547,7 +605,7 @@ Send booking on WhatsApp</a>
 
     const need = [];
     if (air && v('route') === '') need.push('airport route');
-    [['date','date'],['time','pick-up time'],['from','pick-up address'],['name','name'],['phone','phone number']].forEach(([id, n]) => { if (!v(id)) need.push(n); });
+    [['date','date'],['time','pick-up time'],['from-street','pick-up street address'],['name','name'],['phone','phone number']].forEach(([id, n]) => { if (!v(id)) need.push(n); });
     const b = $('send');
     if (need.length) { b.setAttribute('aria-disabled', 'true'); b.href = '#'; b.tabIndex = -1; $('missing').textContent = 'Still needed: ' + need.join(', ') + '.'; }
     else { b.removeAttribute('aria-disabled'); b.tabIndex = 0; b.href = 'https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(message(q)); $('missing').textContent = ''; }
